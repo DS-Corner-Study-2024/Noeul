@@ -1,6 +1,7 @@
 package com.springboot.api.controller;
 
 import com.springboot.api.dto.MemberDto;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class GetController {
         return var;
     }
 
+    @Operation(summary = "GET 메소드 예제", description = "@RequestParam을 활용한 GET Method")
     @GetMapping(value = "/request1")
     public String getRequestParam1(
         @RequestParam String name,
