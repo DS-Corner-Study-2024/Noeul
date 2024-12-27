@@ -1,0 +1,91 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.6'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'jacoco'
+}
+
+group = 'com.springboot'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.h2database:h2:2.2.224'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jacoco {
+	toolVersion = "0.8.8"
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = false
+	}
+}
+
+// ProductServiceImpl.class 제외 설정
+tasks.jacocoTestReport {
+	finalizedBy jacocoTestCoverageVerification
+	doFirst {
+		classDirectories.setFrom(
+				fileTree(dir: "$buildDir/classes/java/main") {
+					exclude '**/ProductServiceImpl.class'
+				}
+		)
+	}
+}
+
+// 커버리지 기준 설정
+tasks.jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'BUNDLE'
+
+			limit {
+				counter = 'INSTRUCTION'
+				value = 'COVEREDRATIO'
+				minimum = 0.8 // 커버리지 최소 80%
+			}
+
+			limit {
+				counter = 'METHOD'
+				value = 'TOTALCOUNT'
+				maximum = 50 // 최대 메서드 수
+			}
+		}
+	}
+}
+
+tasks.check {
+	dependsOn jacocoTestCoverageVerification
+}
